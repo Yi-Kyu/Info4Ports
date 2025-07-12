@@ -1,0 +1,155 @@
+#!/bin/bash
+
+# Info4Port – Yi-Kyu Edition
+# Herramienta para consultar el servicio asociado a uno o varios puertos.
+# Uso: Info4Port -p22,80,443 [-i]
+
+# Diccionario hardcodeado de puertos y su descripción funcional extendida
+declare -A PORTS
+
+# Versión completa con 101 puertos conocidos y explicaciones informativas
+PORTS=(
+  [1]="TCPMUX – TCP Port Service Multiplexer: Multiplexes multiple TCP services on a single port."
+  [2]="CompressNET: Experimental protocol."
+  [3]="CompressNET: Experimental protocol."
+  [7]="Echo Protocol: Replies with the same data it receives. Used for testing."
+  [9]="Discard Protocol: Discards all received data. Used for testing."
+  [13]="Daytime Protocol: Returns the current date and time."
+  [17]="QOTD – Quote of the Day: Sends a short message or quote."
+  [19]="Chargen – Character Generator: Outputs characters continuously for testing."
+  [20]="FTP – Data (Transfer): Used by FTP for data transfer (passive mode)."
+  [21]="FTP – File Transfer Protocol: Transfers files between systems."
+  [22]="SSH – Secure Shell: Remote login and command execution over encrypted channel."
+  [23]="Telnet – Remote login (insecure): Legacy remote shell access. Not encrypted."
+  [25]="SMTP – Mail Transfer: Delivers email between servers."
+  [37]="Time Protocol: Returns system time in UNIX timestamp format."
+  [49]="TACACS – Access Control: Cisco authentication protocol for routers and switches."
+  [53]="DNS – Domain Name System: Resolves hostnames to IP addresses."
+  [67]="DHCP – Server: Assigns IP addresses to clients."
+  [68]="DHCP – Client: Used by clients to obtain an IP address from DHCP server."
+  [69]="TFTP – Trivial FTP: Simple file transfer protocol, often used for firmware updates."
+  [80]="HTTP – Web traffic: Transmits unencrypted web content."
+  [81]="HTTP alt – Alternate web interface: Used for management panels."
+  [88]="Kerberos – Auth service: Used for secure authentication in Windows domains."
+  [110]="POP3 – Mail Retrieval: Retrieves emails from server to client."
+  [111]="RPCbind – Remote Procedure Call: Maps RPC services to dynamic ports."
+  [123]="NTP – Network Time Protocol: Synchronizes clocks between systems."
+  [135]="MSRPC – Microsoft RPC: Endpoint mapper for DCOM and RPC services."
+  [137]="NetBIOS Name Service: Resolves NetBIOS names to IP addresses."
+  [138]="NetBIOS Datagram: Used for network browsing."
+  [139]="NetBIOS Session Service: Provides file and printer sharing."
+  [143]="IMAP – Mail Access: Accesses mailboxes and folders remotely."
+  [161]="SNMP – Monitoring: Used to query network devices."
+  [162]="SNMP Trap – Alerts: Receives asynchronous alerts from devices."
+  [179]="BGP – Border Gateway Protocol: Routing protocol used on the internet."
+  [389]="LDAP – Directory Access: Accesses Active Directory or OpenLDAP."
+  [443]="HTTPS – Secure HTTP: Web content over TLS/SSL encryption."
+  [445]="SMB – Windows File Sharing: Shares files, printers over network."
+  [464]="Kerberos – Password Change: Allows changing Kerberos credentials."
+  [514]="Syslog – Logging: Sends system logs over UDP."
+  [515]="LPD – Printer Daemon: Sends print jobs to remote printers."
+  [520]="RIP – Routing Information Protocol: Legacy routing protocol."
+  [587]="SMTP – Mail Submission: Sends mail from user to server."
+  [593]="RPC over HTTP: Tunnels RPC traffic over HTTP."
+  [631]="IPP – Print Protocol: Print service over HTTP."
+  [636]="LDAPS – Secure LDAP: LDAP over SSL."
+  [873]="rsync – File Sync: Synchronizes files between systems."
+  [993]="IMAPS – Secure IMAP: IMAP over SSL."
+  [995]="POP3S – Secure POP3: POP3 over SSL."
+  [1080]="SOCKS – Proxy: Proxy server protocol."
+  [1194]="OpenVPN – VPN: Open source virtual private network protocol."
+  [1433]="MSSQL – SQL Server: Microsoft database server port."
+  [1434]="MSSQL Monitor: Service discovery for SQL Server."
+  [1521]="Oracle DB: Oracle database service."
+  [1723]="PPTP – VPN: Tunnels traffic over GRE."
+  [2049]="NFS – File System: Shares files across network."
+  [2121]="FTP – Alternate: Custom FTP port."
+  [27017]="MongoDB – NoSQL: Main MongoDB access port."
+  [27018]="MongoDB Shard: Internal communication between shards."
+  [27019]="MongoDB Config: Internal MongoDB config service."
+  [3268]="Global Catalog: AD forest-wide search."
+  [3269]="Global Catalog SSL: Encrypted global catalog."
+  [3306]="MySQL – DB backend: Most used relational DB."
+  [33060]="MySQL X Protocol: Modern MySQL connection."
+  [3389]="RDP – Remote Desktop: Windows GUI remote access."
+  [5060]="SIP – VoIP: Initiates multimedia sessions."
+  [5432]="PostgreSQL – Database: Open-source DB server."
+  [5601]="Kibana – Logs UI: Visual interface for Elasticsearch."
+  [5900]="VNC – GUI Remote: Remote access to graphical desktops."
+  [5985]="WinRM – HTTP: Remote management for Windows."
+  [5986]="WinRM – HTTPS: Secure remote management."
+  [6379]="Redis – Cache backend: Key-value store, in-memory DB."
+  [8000]="HTTP Dev: Common for local web testing."
+  [8080]="HTTP-alt: Used by proxies and alternate web services."
+  [8443]="HTTPS-alt: Secure web admin panels."
+  [8888]="Web Dev UI: Developer dashboards."
+  [9000]="SonarQube / PHP-FPM: Code quality analysis or PHP engine."
+  [9200]="Elasticsearch – API: Search engine REST access."
+  [9389]="AD Web Services: Modern Active Directory interfaces."
+  [10000]="Webmin – Admin UI: Remote web administration panel."
+  [10050]="Zabbix Agent: Monitored host agent."
+  [10051]="Zabbix Server: Main monitoring server."
+  [47001]="WMI – RPC: Remote WMI access."
+  [49152]="RPC Dynamic: Ephemeral RPC service port."
+  [49153]="RPC Dynamic: Ephemeral RPC service port."
+  [49154]="RPC Dynamic: Ephemeral RPC service port."
+  [49155]="RPC Dynamic: Ephemeral RPC service port."
+  [49156]="RPC Dynamic: Ephemeral RPC service port."
+  [49157]="RPC Dynamic: Ephemeral RPC service port."
+  [49158]="RPC Dynamic: Ephemeral RPC service port."
+  [49159]="RPC Dynamic: Ephemeral RPC service port."
+  [49160]="RPC Dynamic: Ephemeral RPC service port."
+  [49161]="RPC Dynamic: Ephemeral RPC service port."
+  [49162]="RPC Dynamic: Ephemeral RPC service port."
+  [49163]="RPC Dynamic: Ephemeral RPC service port."
+  [49164]="RPC Dynamic: Ephemeral RPC service port."
+  [49165]="RPC Dynamic: Ephemeral RPC service port."
+  [49166]="RPC Dynamic: Ephemeral RPC service port."
+  [49167]="RPC Dynamic: Ephemeral RPC service port."
+  [50000]="DB2 – IBM Database: IBM's enterprise relational DB."
+  [50070]="Hadoop Web UI: Web interface for Hadoop NameNode."
+  [50075]="Hadoop DataNode: Web interface for Hadoop Datanode."
+  [61616]="ActiveMQ – Messaging broker: Java message service port."
+)
+
+function usage() {
+  echo -e "\nUsage: Info4Port -p<port[,port,...]> [-i|--info]"
+  echo "Example: Info4Port -p22,80,443"
+  echo "         Info4Port -p22,80,443 -i"
+  exit 1
+}
+
+INFO_MODE=false
+for arg in "$@"; do
+  case $arg in
+    -p*)
+      PORT_INPUT="${arg:2}"
+      ;;
+    -i|--info|--information)
+      INFO_MODE=true
+      ;;
+  esac
+done
+
+if [ -z "$PORT_INPUT" ]; then
+  usage
+fi
+
+IFS=',' read -ra PORT_LIST <<< "$PORT_INPUT"
+echo -e "\n\e[1;34m[+] Port Information:\e[0m"
+for PORT in "${PORT_LIST[@]}"; do
+  if [[ $PORT =~ ^[0-9]+$ ]] && [ "$PORT" -ge 1 ] && [ "$PORT" -le 65535 ]; then
+    DESC="${PORTS[$PORT]}"
+    if [ -z "$DESC" ]; then
+      echo -e "Port $PORT: \e[33mUnknown or uncommon port\e[0m"
+    else
+      if [ "$INFO_MODE" = true ]; then
+        echo -e "\n\e[32mPort $PORT:\e[0m $DESC"
+      else
+        echo -e "Port $PORT: \e[32m$(cut -d':' -f1 <<< "$DESC")\e[0m"
+      fi
+    fi
+  else
+    echo -e "\e[31mInvalid port number: $PORT\e[0m"
+  fi
+done
