@@ -56,7 +56,7 @@ sudo mv Info4Port /usr/local/bin/info4port
 Use it anywhere:
 
 ```bash
-info4port -p443
+Info4port -p443
 ```
 
 ---
