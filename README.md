@@ -1,21 +1,21 @@
 # Info4Ports
 **Info4Port** is a lightweight Bash-based CLI tool for identifying TCP services by port number. Built for pentesters, red teamers, blue teamers, and sysadmins who need fast offline intelligence on what runs behind common ports.
 
-> 🧠 Designed for speed and clarity. No dependencies. No guessing.
+> Designed for speed and clarity. No dependencies. No guessing.
 
 ---
 
-## 📦 Features
+## Features
 
-- 🔎 Instant port-to-service lookup using a local hardcoded dictionary
-- 🧠 Optional verbose mode to get descriptive analysis per port
-- ⚔️ Fully offline – works in air-gapped environments
-- 🐚 Bash-native and easily portable
-- 📋 Supports multiple ports at once via comma-separated input
+- Instant port-to-service lookup using a local hardcoded dictionary
+- Optional verbose mode to get descriptive analysis per port
+- Fully offline – works in air-gapped environments
+- Bash-native and easily portable
+- Supports multiple ports at once via comma-separated input
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ```bash
 ./Info4Port -p22,80,443
@@ -70,7 +70,7 @@ Info4port -p443
 
 ---
 
-## 🧪 Sample Output
+## Sample Output
 
 ```bash
 $ ./Info4Port -p53,161,443 -i
@@ -82,14 +82,14 @@ $ ./Info4Port -p53,161,443 -i
 
 ---
 
-## 🧑‍💻 Author
+## Author
 
 **Yi-Kyu**  
-Ethical Offensive Security | Red Team Tools | Bash Automation  
+Offensive Security | CTF's Tools | Bash Automation  
 [GitHub](https://github.com/Yi-Kyu) • [Portfolio](https://yi-kyu.github.io)
 
 ---
 
-## ⚔️ License
+## License
 
 This project is open-source and licensed under the [MIT License](LICENSE).
