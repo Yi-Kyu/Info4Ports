@@ -39,7 +39,7 @@
 
 ---
 
-## 🛠️ Installation
+## Installation
 
 Make it executable:
 
@@ -61,7 +61,7 @@ Info4port -p443
 
 ---
 
-## ⚙️ Flags
+## Flags
 
 | Flag        | Description                                                       |
 |-------------|-------------------------------------------------------------------|
